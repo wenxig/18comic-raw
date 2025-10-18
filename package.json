@@ -1,0 +1,73 @@
+{
+  "name": "18comic-raw",
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite"
+  },
+  "devDependencies": {
+    "@types/crypto-js": "^4.2.2",
+    "@types/js-cookie": "^3.0.6",
+    "@types/md5": "^2.3.5",
+    "@types/node": "^24.2.1",
+    "@types/react": "^19.1.9",
+    "@types/react-dom": "^19.1.7",
+    "@types/react-lazy-load-image-component": "^1.6.4",
+    "@vitejs/plugin-react": "^5.0.0",
+    "browserslist": "^4.25.1",
+    "lightningcss": "^1.30.1",
+    "tailwindcss": "4.1.11",
+    "vite": "npm:rolldown-vite@^7.0.12"
+  },
+  "dependencies": {
+    "@capacitor/app": "^7.0.2",
+    "@capacitor/cli": "^7.4.2",
+    "@capacitor/core": "^7.4.2",
+    "@capacitor/filesystem": "^7.1.4",
+    "@capacitor/preferences": "^7.0.2",
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
+    "@mui/icons-material": "^7.3.1",
+    "@mui/material": "^7.3.1",
+    "@mui/styled-engine": "^7.3.1",
+    "@reduxjs/toolkit": "^2.8.2",
+    "@tailwindcss/vite": "^4.1.11",
+    "classnames": "^2.5.1",
+    "crypto-js": "^4.2.0",
+    "devtools-detector": "^2.0.23",
+    "framer-motion": "^12.23.12",
+    "hls.js": "^1.6.9",
+    "i18next": "^25.3.2",
+    "i18next-browser-languagedetector": "^8.2.0",
+    "i18next-http-backend": "^3.0.2",
+    "js-cookie": "^3.0.5",
+    "jszip": "^3.10.1",
+    "md5": "^2.3.0",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "react-ga4": "^2.1.0",
+    "react-helmet": "^6.1.0",
+    "react-i18next": "^15.6.1",
+    "react-intersection-observer": "^9.16.0",
+    "react-lazy-load-image-component": "^1.6.3",
+    "react-pull-to-refreshify": "^0.1.0",
+    "react-redux": "^9.2.0",
+    "react-router-dom": "^7.8.0",
+    "react-share": "^5.2.2",
+    "redux": "^5.0.1",
+    "redux-thunk": "^3.1.0",
+    "swiper": "^11.2.10"
+  },
+  "pnpm": {
+    "overrides": {
+      "vite": "npm:rolldown-vite@latest"
+    },
+    "onlyBuiltDependencies": [
+      "@parcel/watcher",
+      "@tailwindcss/oxide",
+      "@vercel/speed-insights",
+      "core-js",
+      "esbuild"
+    ]
+  }
+}
