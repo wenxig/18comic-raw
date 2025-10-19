@@ -380,7 +380,7 @@ export const AchievementSelectData = () => {
         { name: t("achievement.all_badges"), filter: "all", type: "badge" },
       ],
     },
-  ]
+  ] as const
 }
 
 export const ComicType = () => {

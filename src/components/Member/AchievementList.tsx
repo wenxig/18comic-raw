@@ -1,41 +1,54 @@
-import { useEffect, useState } from "react";
-import { useAppDispatch, useAppSelector } from "../../store/hooks";
-import MenuItem from "@mui/material/MenuItem";
-import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
-import EditNoteIcon from "@mui/icons-material/EditNote";
-import ErrorIcon from "@mui/icons-material/Error";
-import Button from "@mui/material/Button";
-import Menu from "@mui/material/Menu";
-import Fade from "@mui/material/Fade";
-import { FETCH_TASKS_LIST_THUNK, FETCH_CHANGE_TASKS_THUNK, FETCH_TASKS_BUY_THUNK } from "../../actions/memberAction";
-import { CLEAR_MEMBER_LIST, LOAD_MEMBER_LIST } from "../../reducers/memberReducer";
-import { AchievementSelectData } from "../../assets/JsonData";
-import MemberModal from "../Modal/MemberModal";
-import { ConfirmAlert } from "../Alert/Alert";
-
+import { useEffect, useState } from "react"
+import { useAppDispatch, useAppSelector } from "../../store/hooks"
+import MenuItem from "@mui/material/MenuItem"
+import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown"
+import EditNoteIcon from "@mui/icons-material/EditNote"
+import ErrorIcon from "@mui/icons-material/Error"
+import Button from "@mui/material/Button"
+import Menu from "@mui/material/Menu"
+import Fade from "@mui/material/Fade"
+import { FETCH_TASKS_LIST_THUNK, FETCH_CHANGE_TASKS_THUNK, FETCH_TASKS_BUY_THUNK } from "../../actions/memberAction"
+import { LOAD_MEMBER_LIST } from "../../reducers/memberReducer"
+import { AchievementSelectData } from "../../assets/JsonData"
+import MemberModal from "../Modal/MemberModal"
+import { ConfirmAlert } from "../Alert/Alert"
+type Type = 'title' | 'badge'
+type Filter = 'all' | 'my'
 const AchievementList = (props: any) => {
-  const { t, setConfig, logined, memberInfo, setting, showSnackbar } = props;
-  const finishedItems = t("member.finished", { returnObjects: true });
-  const dispatch = useAppDispatch();
-  const { tasksList, isLoading, isRefreshing } = useAppSelector((state) => state.member);
-  const [dialogOpen, setDialogOpen] = useState({ achievement: false });
-  const [menuOpen, setMenuOpen] = useState<Record<string, boolean>>({ title: false, filter: false });
-  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
-  const AchievementData = AchievementSelectData();
-  const [purchase, setPurchase] = useState({ alert: false, message: "", confirm: false, id: "" });
-  const getTaskType = () => sessionStorage.getItem("taskType") || "title";
-  const getTaskFilter = () => sessionStorage.getItem("taskFilter") || "my";
-  const getTypeName = (type: string) => (type === "title" ? t("achievement.title") : t("achievement.badge"));
-  const getFilterName = (type: string, filter: string) => {
+  const { t, setConfig, logined, memberInfo, setting, showSnackbar } = props
+  const finishedItems = t("member.finished", { returnObjects: true })
+  const dispatch = useAppDispatch()
+  const { tasksList, isLoading, isRefreshing } = useAppSelector((state) => state.member)
+  const [dialogOpen, setDialogOpen] = useState({ achievement: false })
+  const [menuOpen, setMenuOpen] = useState<Record<string, boolean>>({ title: false, filter: false })
+  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null)
+  const AchievementData = AchievementSelectData()
+  const [purchase, setPurchase] = useState({ alert: false, message: "", confirm: false, id: "" })
+  const getTaskType = () => sessionStorage.getItem("taskType") as Type || "title"
+  const getTaskFilter = () => sessionStorage.getItem("taskFilter") as 'all' | 'my' || "my"
+  const getTypeName = (type: string) => (type === "title" ? t("achievement.title") : t("achievement.badge"))
+  const getFilterName = (type: Type, filter: Filter) => {
     if (filter === "my") {
-      return type === "title" ? t("achievement.my_title") : t("achievement.my_badge");
+      return type === "title" ? t("achievement.my_title") : t("achievement.my_badge")
     } else {
-      return type === "title" ? t("achievement.all_titles") : t("achievement.all_badges");
+      return type === "title" ? t("achievement.all_titles") : t("achievement.all_badges")
     }
-  };
+  }
 
-  const taskType = getTaskType();
-  const taskFilter = getTaskFilter();
+  const taskType = getTaskType()
+  const taskFilter = getTaskFilter()
+
+  // 在 AchievementList 组件中添加对 select 对象的类型定义
+  interface AchievementSelect {
+    edit: boolean
+    change: string
+    type: Type
+    typeName: string
+    filter: Filter
+    filterName: string
+    option: any[]
+    isModalData: boolean
+  }
 
   const defaultSelect = {
     edit: false,
@@ -46,92 +59,92 @@ const AchievementList = (props: any) => {
     filterName: getFilterName(taskType, taskFilter),
     option: [],
     isModalData: false,
-  };
-  const [select, setSelect] = useState<any>(defaultSelect);
+  }
+  const [select, setSelect] = useState<AchievementSelect>(defaultSelect)
 
   const handleClick = (event: React.MouseEvent<HTMLElement>, dropdownId: string) => {
-    setAnchorEl(event.currentTarget);
-    setMenuOpen((prev: any) => ({ ...prev, [dropdownId]: true }));
-  };
+    setAnchorEl(event.currentTarget)
+    setMenuOpen((prev: any) => ({ ...prev, [dropdownId]: true }))
+  }
 
   const handleClose = (dropdownId: string) => {
-    setMenuOpen((prev: any) => ({ ...prev, [dropdownId]: false }));
-    setAnchorEl(null);
-  };
+    setMenuOpen((prev: any) => ({ ...prev, [dropdownId]: false }))
+    setAnchorEl(null)
+  }
 
   // all:badge/title & my/all   // exp coin badge
   const loadList = async (type: string = "", filter: string = "", isRefreshing: boolean = false) => {
-    dispatch(LOAD_MEMBER_LIST({ isLoading: true, isRefreshing, isLoadMore: false }));
-    const result = await dispatch(FETCH_TASKS_LIST_THUNK({ type, filter })).unwrap();
+    dispatch(LOAD_MEMBER_LIST({ isLoading: true, isRefreshing, isLoadMore: false }))
+    const result = await dispatch(FETCH_TASKS_LIST_THUNK({ type, filter })).unwrap()
     if (result.msg !== "") {
-      const { status, msg } = result;
-      const statusType = status !== "ok" && "error";
-      showSnackbar(msg, statusType);
+      const { status, msg } = result
+      const statusType = status !== "ok" && "error"
+      showSnackbar(msg, statusType)
     }
-  };
+  }
 
   const handleGetModalDesc = (isRefreshing: boolean = false) => {
-    loadList(select.type, select.filter, isRefreshing);
-    loadList("coin");
-    loadList("exp");
-  };
+    loadList(select.type, select.filter, isRefreshing)
+    loadList("coin")
+    loadList("exp")
+  }
 
   // Refresh
   const handleRefresh = () => {
-    handleGetModalDesc(true);
-  };
+    handleGetModalDesc(true)
+  }
 
   // init
   useEffect(() => {
     if (logined && tasksList.all?.length === 0) {
-      handleGetModalDesc();
+      handleGetModalDesc()
     }
-  }, [logined, tasksList.all?.length]);
+  }, [logined, tasksList.all?.length])
 
   useEffect(() => {
     if (tasksList.all?.length > 0 && select.type === "title") {
-      const selectedTask = tasksList.all.find((d: any) => d.content === memberInfo.level_name);
-      const selectedTaskId = selectedTask?.id || tasksList.all?.[0]?.id || "";
-      setSelect((prev: any) => ({ ...prev, change: selectedTaskId }));
+      const selectedTask = tasksList.all.find((d: any) => d.content === memberInfo.level_name)
+      const selectedTaskId = selectedTask?.id || tasksList.all?.[0]?.id || ""
+      setSelect((prev: any) => ({ ...prev, change: selectedTaskId }))
     }
-  }, [tasksList.all?.length, select.type]);
+  }, [tasksList.all?.length, select.type])
 
   useEffect(() => {
-    const options = AchievementData.find((d) => d.type === select.type)?.option || AchievementData[0].option;
+    const options = AchievementData.find((d) => d.type === select.type)?.option || AchievementData[0].option
     setSelect((prevSelect: any) => ({
       ...prevSelect,
       option: options,
-    }));
-  }, [select.type, select.edit, dialogOpen.achievement, setSelect]);
+    }))
+  }, [select.type, select.edit, dialogOpen.achievement, setSelect])
 
   const handleChangeEvent = async (d: string) => {
     if (d === t("member.cancel")) {
-      setSelect({ ...select, edit: false });
-      return;
+      setSelect({ ...select, edit: false })
+      return
     } else if (select.change !== "") {
       const result = await dispatch(
         FETCH_CHANGE_TASKS_THUNK({ type: select.type, uid: memberInfo.uid, task_id: select.change })
-      ).unwrap();
+      ).unwrap()
       if (result.code === 200) {
-        const { msg, errorMsg, status } = result.data;
-        const message = errorMsg || msg;
-        const type = status !== "ok" ? "error" : "success";
-        showSnackbar(message, type);
-        setSelect({ ...select, edit: false });
+        const { msg, errorMsg, status } = result.data
+        const message = errorMsg || msg
+        const type = status !== "ok" ? "error" : "success"
+        showSnackbar(message, type)
+        setSelect({ ...select, edit: false })
       }
     }
-  };
+  }
 
   const handlePurchase = async (id: string) => {
-    const result = await dispatch(FETCH_TASKS_BUY_THUNK({ uid: memberInfo.uid, task_id: id })).unwrap();
+    const result = await dispatch(FETCH_TASKS_BUY_THUNK({ uid: memberInfo.uid, task_id: id })).unwrap()
     if (result.code === 200) {
-      const { msg, errorMsg, status } = result.data;
-      const message = errorMsg || msg;
-      const type = status !== 1 ? "error" : "success";
-      showSnackbar(message, type);
-      setPurchase({ ...purchase, alert: false, message: "", confirm: false, id: "" });
+      const { msg, errorMsg, status } = result.data
+      const message = errorMsg || msg
+      const type = status !== 1 ? "error" : "success"
+      showSnackbar(message, type)
+      setPurchase({ ...purchase, alert: false, message: "", confirm: false, id: "" })
     }
-  };
+  }
 
   return (
     <>
@@ -168,14 +181,14 @@ const AchievementList = (props: any) => {
                   },
                 })}
               >
-                {AchievementData.map((d: any) => (
+                {AchievementData.map((d) => (
                   <MenuItem
                     key={d.type}
                     onClick={() => {
-                      handleClose("title");
-                      loadList(d.type, d.option[0].filter);
-                      sessionStorage.setItem("taskType", d.type);
-                      sessionStorage.setItem("taskFilter", d.option[0].filter);
+                      handleClose("title")
+                      loadList(d.type, d.option[0].filter)
+                      sessionStorage.setItem("taskType", d.type)
+                      sessionStorage.setItem("taskFilter", d.option[0].filter)
                       setSelect({
                         ...select,
                         type: d.type,
@@ -183,7 +196,7 @@ const AchievementList = (props: any) => {
                         filter: d.option[0].filter,
                         filterName: "",
                         change: "",
-                      });
+                      })
                     }}
                   >
                     {d.name}
@@ -226,11 +239,11 @@ const AchievementList = (props: any) => {
                     <MenuItem
                       key={d.filter}
                       onClick={() => {
-                        handleClose("filter");
-                        loadList(d.type, d.filter);
-                        sessionStorage.setItem("taskType", d.type);
-                        sessionStorage.setItem("taskFilter", d.filter);
-                        setSelect({ ...select, filter: d.filter, filterName: d.name });
+                        handleClose("filter")
+                        loadList(d.type, d.filter)
+                        sessionStorage.setItem("taskType", d.type)
+                        sessionStorage.setItem("taskFilter", d.filter)
+                        setSelect({ ...select, filter: d.filter, filterName: d.name })
                       }}
                     >
                       {d.name}
@@ -299,8 +312,8 @@ const AchievementList = (props: any) => {
                       <div
                         className="text-[#aaa]"
                         onClick={() => {
-                          const message = `確定花費『${d.coin}』J coin 購買『${d.name}』嗎？`;
-                          select.filter === "all" && setPurchase({ ...purchase, alert: true, message, id: d.id });
+                          const message = `確定花費『${d.coin}』J coin 購買『${d.name}』嗎？`
+                          select.filter === "all" && setPurchase({ ...purchase, alert: true, message, id: d.id })
                         }}
                       >
                         <img src={setting.img_host + d.content} alt={d.id} width={50} height={50} />
@@ -331,7 +344,7 @@ const AchievementList = (props: any) => {
       )}
       {purchase.alert && <ConfirmAlert t={t} edit={purchase} setEdit={setPurchase} handleAction={handlePurchase} />}
     </>
-  );
-};
+  )
+}
 
-export default AchievementList;
+export default AchievementList
